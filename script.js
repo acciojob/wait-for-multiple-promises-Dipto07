@@ -1,39 +1,53 @@
 //your JS code here. If required.
+const res = document.getElementById("output");
 
- function createRandomPromise(index) {
-            return new Promise((resolve) => {
-                const time = Math.random() * 2 + 1;
-                setTimeout(() => resolve({ index, time }), time * 1000);
-            });
-        }
+const promises = [
+  new Promise((resolve) => {
+    const time = Math.floor(Math.random() * 3 + 1) * 1000;
+    setTimeout(() => resolve({ name: "Promise 1", time: time / 1000 }), time);
+  }),
+  new Promise((resolve) => {
+    const time = Math.floor(Math.random() * 3 + 1) * 1000;
+    setTimeout(() => resolve({ name: "Promise 2", time: time / 1000 }), time);
+  }),
+  new Promise((resolve) => {
+    const time = Math.floor(Math.random() * 3 + 1) * 1000;
+    setTimeout(() => resolve({ name: "Promise 3", time: time / 1000 }), time);
+  }),
+];
 
-        const promises = [
-            createRandomPromise(1),
-            createRandomPromise(2),
-            createRandomPromise(3)
-        ];
+async function callFns() {
+  const start = new Date();
+  // Use Promise.all to wait for all Promises to resolve
+  res.innerHTML += `
+            <tr id="loading">
+                <td colspan=2>Loading...</td>
+            </tr>
+          `;
+  await Promise.all(promises)
+    .then((results) => {
+      res.innerHTML = ``;
+      // Log the array of results
+      results.forEach((e) => {
+        res.innerHTML += `
+            <tr>
+                <td>${e.name}</td>
+                <td>${e.time}</td>
+            </tr>
+          `;
+      });
+    })
+    .catch((error) => {
+      console.error(error);
+    });
 
-        const startTime = performance.now();
-
-        Promise.all(promises).then(results => {
-            const endTime = performance.now();
-            const totalTime = (endTime - startTime) / 1000;
-
-            const table = document.getElementById('promiseTable');
-            const loadingRow = document.getElementById('loadingRow');
-            table.removeChild(loadingRow);
-
-            results.forEach(result => {
-                const row = table.insertRow();
-                const cell1 = row.insertCell(0);
-                const cell2 = row.insertCell(1);
-                cell1.textContent = `Promise ${result.index}`;
-                cell2.textContent = result.time.toFixed(3) + ' seconds';
-            });
-
-            const totalRow = table.insertRow();
-            const cell1 = totalRow.insertCell(0);
-            const cell2 = totalRow.insertCell(1);
-            cell1.textContent = 'Total';
-            cell2.textContent = totalTime.toFixed(3) + ' seconds';
-        });
+  const end = new Date();
+  const timeInMillis = end - start;
+  res.innerHTML += `
+            <tr>
+                <td>Total</td>
+                <td>${timeInMillis / 1000}</td>
+            </tr>
+          `;
+}
+callFns();
